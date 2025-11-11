@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
 const XIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -35,12 +37,45 @@ const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const FooterSection = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = footerRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
   return (
-    <footer className="bg-black py-[60px]">
+    <footer className="bg-black py-[60px]" ref={footerRef}>
       <div className="mx-auto max-w-[1200px] px-5">
         <div className="grid grid-cols-1 gap-12 text-center md:grid-cols-3 md:gap-8 md:text-left">
-          {/* Brand Column */}
-          <div>
+          <div
+            className="transition-all duration-700"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+              transitionDelay: '0s',
+            }}
+          >
             <h3 className="mb-4 text-[16px] font-medium text-white">Brand</h3>
             <ul className="flex flex-col gap-1">
               <li><Link href="/about" className="text-[14px] text-white/70 transition hover:text-white">About</Link></li>
@@ -51,8 +86,14 @@ const FooterSection = () => {
             </ul>
           </div>
 
-          {/* Support Column */}
-          <div>
+          <div
+            className="transition-all duration-700"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+              transitionDelay: '0.1s',
+            }}
+          >
             <h3 className="mb-4 text-[16px] font-medium text-white">Support</h3>
             <ul className="flex flex-col gap-1">
               <li><a href="https://suno.com" target="_blank" rel="noopener noreferrer" className="text-[14px] text-white/70 transition hover:text-white">Help</a></li>
@@ -64,8 +105,14 @@ const FooterSection = () => {
             </ul>
           </div>
 
-          {/* Social Media Column */}
-          <div className="flex items-start justify-center md:justify-end">
+          <div 
+            className="flex items-start justify-center md:justify-end transition-all duration-700"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+              transitionDelay: '0.2s',
+            }}
+          >
             <div className="flex gap-5">
               <a href="https://twitter.com/suno_ai_" target="_blank" rel="noopener noreferrer" className="text-white transition hover:opacity-70">
                 <XIcon className="h-5 w-5" />
@@ -80,8 +127,14 @@ const FooterSection = () => {
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-14 text-center text-[12px] text-white/50">
+        <div 
+          className="mt-14 text-center text-[12px] text-white/50 transition-all duration-700"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transitionDelay: '0.3s',
+          }}
+        >
           © 2025 Suno, Inc.
         </div>
       </div>

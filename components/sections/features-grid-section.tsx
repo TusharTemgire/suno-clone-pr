@@ -1,9 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { Music, Heart, MessageSquare, Play, Download, Headphones } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const CustomKeyframes = () => (
   <style>
@@ -39,7 +37,7 @@ const CustomKeyframes = () => (
   </style>
 );
 
-// Visual components
+
 const FreeSongsVisual = () => (
   <div className="relative mt-auto flex h-[280px] w-full flex-col items-center justify-center overflow-hidden rounded-[10px]">
     <div className="absolute h-[250%] w-[250%] animate-[spin_30s_linear_infinite] rounded-full border-t border-white/10"></div>
@@ -138,18 +136,114 @@ const featureCards = [
 ];
 
 export default function FeaturesGridSection() {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const observers = cardRefs.current.map((card) => {
+      if (!card) return null;
+      
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('animate-in');
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+
+      observer.observe(card);
+      return observer;
+    });
+
+    return () => {
+      observers.forEach((observer) => observer?.disconnect());
+    };
+  }, []);
+
   return (
-    <section id="features" className="bg-[#101012] w-full">
+    <section id="features" className="bg-[#101012] w-full" ref={sectionRef}>
       <CustomKeyframes />
+      <style>
+        {`
+          @keyframes slideUp {
+            from {
+              opacity: 0;
+              transform: translateY(40px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          @keyframes cardFadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(30px) scale(0.95);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+          .card-item {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          .card-item.animate-in {
+            animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          }
+        `}
+      </style>
       <div className="mx-auto flex items-center justify-center max-w-[854px] px-5">
-        <h1 className="text-center font-sans text-[35px] font-medium leading-[1.1] text-white lg:text-[72px] lg:leading-[1.1]">
+        <h1 
+          className="text-center font-sans text-[35px] font-medium leading-[1.1] text-white lg:text-[72px] lg:leading-[1.1] transition-all duration-700"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+          }}
+        >
           Everything you need to make music your way
         </h1>
       </div>
       <div className="mx-auto mt-10 mb-10 w-full max-w-6xl px-5 md:mt-[60px] md:mb-[60px]">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           {featureCards.map((card, index) =>(
-            <div key={index} className="flex h-full min-h-[480px] w-full flex-col gap-5 rounded-[20px] border border-white/10 bg-white/5 ">
+            <div 
+              key={index} 
+              ref={(el) => { cardRefs.current[index] = el; }}
+              className="card-item flex h-full min-h-[480px] w-full flex-col gap-5 rounded-[20px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+              style={{
+                animationDelay: `${index * 0.1}s`,
+              }}
+            >
               <div className="flex flex-col p-6">
                 <h3 className="font-sans text-[18px] font-medium leading-6 text-white">{card.title}</h3>
                 <p className="mt-2 text-[16px] leading-6 text-white/70">{card.description}</p>

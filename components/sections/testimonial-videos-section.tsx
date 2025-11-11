@@ -1,6 +1,6 @@
 'use client'; 
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FC } from "react";
 
 const PlayIcon: FC<{ className?: string }> = ({ className }) => (
@@ -38,6 +38,8 @@ const testimonials = [
 
 const TestimonialVideosSection = () => {
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     videoRefs.current.forEach((video) => {
@@ -47,14 +49,51 @@ const TestimonialVideosSection = () => {
     });
   }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
   return (
-    <section id="community" className="bg-black pt-[100px] md:pt-[150px] overflow-hidden">
+    <section id="community" className="bg-black pt-[100px] md:pt-[150px] overflow-hidden" ref={sectionRef}>
       <div className="px-5">
         <div className="mx-auto max-w-[784px] text-center">
-          <h1 className="font-sans font-medium text-white text-[48px] leading-11 tracking-[-0.96px] lg:text-[72px] lg:leading-16 lg:tracking-[-1.44px]">
+          <h1 
+            className="font-sans font-medium text-white text-[48px] leading-11 tracking-[-0.96px] lg:text-[72px] lg:leading-16 lg:tracking-[-1.44px] transition-all duration-700"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+            }}
+          >
             Explore and get inspired
           </h1>
-          <h2 className="mx-auto mt-4 max-w-[784px] text-center font-light text-[16px] leading-6 text-white/70 md:text-[18px]">
+          <h2 
+            className="mx-auto mt-4 max-w-[784px] text-center font-light text-[16px] leading-6 text-white/70 md:text-[18px] transition-all duration-700"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+              transitionDelay: '0.2s',
+            }}
+          >
             Join the #1 AI music generator. Create songs, remix tracks, make beats, and share your music with millions — free forever.
           </h2>
         </div>

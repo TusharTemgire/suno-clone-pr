@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 const PremiumIcon = () => (
@@ -31,12 +34,48 @@ interface Song {
   isPremium: boolean;
 }
 
-const SongCard = ({ song }: { song: Song }) => (
-  <div className="w-[260px] shrink-0">
-    <div className="relative h-[267px] w-full origin-top overflow-hidden rounded-[12px] transition-transform duration-300 hover:scale-[102%] md:h-[311px]">
-      <Image src={song.albumArt} alt={song.title} width={260} height={311} className="h-full w-full object-cover" />
-      {song.isPremium && <PremiumIcon />}
-      <div className="absolute bottom-[13px] left-[14.5px] flex flex-row gap-1">
+const SongCard = ({ song, index }: { song: Song; index: number }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    const currentRef = cardRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
+  return (
+    <div 
+      ref={cardRef}
+      className="w-[260px] shrink-0 transition-all duration-700"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.95)',
+        transitionDelay: `${index * 0.1}s`,
+      }}
+    >
+      <div className="relative h-[267px] w-full origin-top overflow-hidden rounded-[12px] transition-transform duration-300 hover:scale-[102%] md:h-[311px] group">
+        <Image src={song.albumArt} alt={song.title} width={260} height={311} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        {song.isPremium && <PremiumIcon />}
+        <div className="absolute bottom-[13px] left-[14.5px] flex flex-row gap-1">
         <div aria-label="Play button with play count" className="inline-flex h-[30px] flex-row items-center gap-1 rounded-md border border-border-primary bg-white/25 px-2 py-1 font-sans text-[12.68px] font-medium uppercase leading-[15.216px] text-foreground backdrop-blur-[15.22px]">
           <PlayIcon />
           <div>{song.playCount}</div>
@@ -45,23 +84,51 @@ const SongCard = ({ song }: { song: Song }) => (
           <HeartIcon />
           <div>{song.likeCount}</div>
         </button>
+        </div>
+      </div>
+      <div className="mt-[15px] overflow-hidden whitespace-nowrap text-ellipsis text-[15.581px] font-medium leading-[15.581px] text-white">
+        {song.title}
+      </div>
+      <div className="mt-2.5 flex items-center gap-1">
+        <div className="h-6 w-6 shrink-0">
+          <Image src={song.artistAvatar} alt={song.artistName} width={24} height={24} className="h-full w-full rounded-full" />
+        </div>
+        <div className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis text-[11.685px] font-medium leading-[15.581px]">
+          {song.artistName}
+        </div>
       </div>
     </div>
-    <div className="mt-[15px] overflow-hidden whitespace-nowrap text-ellipsis text-[15.581px] font-medium leading-[15.581px] text-white">
-      {song.title}
-    </div>
-    <div className="mt-2.5 flex items-center gap-1">
-      <div className="h-6 w-6 shrink-0">
-        <Image src={song.artistAvatar} alt={song.artistName} width={24} height={24} className="h-full w-full rounded-full" />
-      </div>
-      <div className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis text-[11.685px] font-medium leading-[15.581px]">
-        {song.artistName}
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 const FeaturedSongsSection = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
   const songs: Song[] = [
     {
       title: "Mojave",
@@ -138,13 +205,26 @@ const FeaturedSongsSection = () => {
   ];
 
   return (
-    <section id="featured-songs" className="bg-linear-to-b from-[#101012] to-[#101012] overflow-hidden">
+    <section id="featured-songs" className="bg-linear-to-b from-[#101012] to-[#101012] overflow-hidden" ref={sectionRef}>
       <div className="mx-auto mt-20 max-w-[800px] px-2.5">
         <div className="text-center">
-          <h1 className="mx-auto max-w-xl text-white select-none whitespace-pre-wrap text-center font-sans font-medium text-foreground-primary text-[35px] leading-[35px] lg:text-[72px] lg:leading-16">
+          <h1 
+            className="mx-auto max-w-xl text-white select-none whitespace-pre-wrap text-center font-sans font-medium text-foreground-primary text-[35px] leading-[35px] lg:text-[72px] lg:leading-16 transition-all duration-700"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+            }}
+          >
             Mind blowing song quality
           </h1>
-          <h2 className="mx-auto mt-4 max-w-[615px] text-center text-[16px] leading-6 text-white/70 md:text-[18px]">
+          <h2 
+            className="mx-auto mt-4 max-w-[615px] text-center text-[16px] leading-6 text-white/70 md:text-[18px] transition-all duration-700"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+              transitionDelay: '0.1s',
+            }}
+          >
             Whether you have a melody in your head, lyrics you&apos;ve written, or just a feeling you want to hear—Suno makes high-quality music creation accessible to all
           </h2>
         </div>
@@ -153,7 +233,7 @@ const FeaturedSongsSection = () => {
         <div className="w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <div className="flex w-max gap-6 px-6">
             {songs.map((song, index) => (
-              <SongCard key={index} song={song} />
+              <SongCard key={index} song={song} index={index} />
             ))}
           </div>
         </div>

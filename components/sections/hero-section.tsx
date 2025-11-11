@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Plus, Shuffle, SlidersHorizontal, Music } from "lucide-react";
@@ -17,7 +17,7 @@ const PlayIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const SongCard = ({
+const SongCard = memo(({
   title,
   artist,
   imageUrl,
@@ -31,28 +31,40 @@ const SongCard = ({
   avatarUrl: string;
   className?: string;
   rotate?: number;
-}) => (
-  <div
-    className={`cursor-pointer blur-[1px] hover:blur-none ml-2 mr-2 shadow-2xl ${className} group`}
-    style={{ transform: `rotate(${rotate}deg)` }}
-    onMouseMove={e => {
-      const card = e.currentTarget as HTMLDivElement;
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * 6;
-      const rotateY = ((x - centerX) / centerX) * 6;
-      card.style.transform = `rotate(${rotate}deg) perspective(600px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
-    }}
-    onMouseLeave={e => {
-      const card = e.currentTarget as HTMLDivElement;
-      card.style.transform = `rotate(${rotate}deg)`;
-    }}
-  >
-    <div className="relative h-full w-full origin-top overflow-hidden rounded-[12px] transition-all duration-500 hover:scale-[115%] hover:shadow-2xl md:h-[311px]">
-      <Image src={imageUrl} alt={title} fill className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+}) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget as HTMLDivElement;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * 6;
+    const rotateY = ((x - centerX) / centerX) * 6;
+    card.style.transform = `rotate(${rotate}deg) perspective(600px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget as HTMLDivElement;
+    card.style.transform = `rotate(${rotate}deg)`;
+  };
+
+  return (
+    <div
+      className={`cursor-pointer blur-[1px] hover:blur-none ml-2 mr-2 shadow-2xl ${className} group`}
+      style={{ transform: `rotate(${rotate}deg)`, willChange: 'transform' }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="relative h-full w-full origin-top overflow-hidden rounded-[12px] transition-all duration-500 hover:scale-[115%] hover:shadow-2xl md:h-[311px]">
+        <Image 
+          src={imageUrl} 
+          alt={title} 
+          fill 
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" 
+          priority
+          quality={85}
+        />
       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/50 to-transparent transition-opacity duration-300 group-hover:from-black/70" />
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out">
         <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-black/60">
@@ -74,7 +86,10 @@ const SongCard = ({
       </div>
     </div>
   </div>
-);
+  );
+});
+
+SongCard.displayName = 'SongCard';
 
 const logos = [
   { name: "Billboard", src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d379c487-54bc-4fa0-8716-872371df7d6e-suno-com/assets/svgs/Billboard_logo-1.svg" },
@@ -138,27 +153,56 @@ export default function HeroSection() {
   const [typedText, setTypedText] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
   const initialText = "Make a country song about Jess being late";
+  const lastUpdateRef = useRef<number>(0);
 
   useEffect(() => {
-    setIsLoaded(true);
-    let i = 0;
-    const interval = setInterval(() => {
-      setTypedText((prev) => {
-        if (i < initialText.length) {
-          i++;
-          return initialText.slice(0, i);
-        } else {
-          clearInterval(interval);
-          return prev;
-        }
-      });
-    }, 80);
+    const loadTimer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(loadTimer);
   }, []);
 
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    let currentIndex = 0;
+    const typingSpeed = 50;
+    let animationFrameId: number;
+
+    const typeCharacter = (timestamp: number) => {
+      if (!lastUpdateRef.current) {
+        lastUpdateRef.current = timestamp;
+      }
+
+      const elapsed = timestamp - lastUpdateRef.current;
+
+      if (elapsed >= typingSpeed) {
+        if (currentIndex < initialText.length) {
+          currentIndex++;
+          setTypedText(initialText.slice(0, currentIndex));
+          lastUpdateRef.current = timestamp;
+          animationFrameId = requestAnimationFrame(typeCharacter);
+        }
+      } else {
+        animationFrameId = requestAnimationFrame(typeCharacter);
+      }
+    };
+
+    const startTypingTimer = setTimeout(() => {
+      animationFrameId = requestAnimationFrame(typeCharacter);
+    }, 300);
+
+    return () => {
+      clearTimeout(startTypingTimer);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isLoaded, initialText]);
+
   return (
-    <div className="relative min-h-screen w-full bg-background-primary overflow-hidden flex flex-col">
+    <div className="hero-section-optimized relative min-h-screen w-full bg-background-primary overflow-hidden flex flex-col">
       <style>
         {`
           @keyframes blink-caret {
@@ -212,9 +256,22 @@ export default function HeroSection() {
           }
           .animate-float {
             animation: float 6s ease-in-out infinite;
+            will-change: transform;
           }
           .animate-scaleIn {
             animation: scaleIn 0.6s ease-out forwards;
+          }
+          /* Performance optimizations */
+          .hero-section-optimized * {
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+          .transition-optimized {
+            will-change: opacity, transform;
+          }
+          .typing-text {
+            contain: layout style paint;
           }
         `}
       </style>
@@ -242,7 +299,7 @@ export default function HeroSection() {
         />
       </div>
 
-      <header className={`fixed top-0 right-0 left-0 z-50 w-full p-5 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+      <header className={`transition-optimized fixed top-0 right-0 left-0 z-50 w-full p-5 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
         <div className="flex items-center">
           <div className="flex flex-1 items-start">
             <Link href="/" className="relative inline-block h-[19.394px] w-[78.709px] transition-transform duration-300 hover:scale-105">
@@ -262,7 +319,7 @@ export default function HeroSection() {
 
       <main className="relative z-10 flex flex-1 items-center justify-center w-full">
         <div className="flex w-full items-center justify-center">
-          <div className={`transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
+          <div className={`transition-optimized transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
             <div className="animate-float" style={{ animationDelay: '0s' }}>
               <SongCard
                 title="Mojave"
@@ -275,19 +332,19 @@ export default function HeroSection() {
             </div>
           </div>
           <section className="flex flex-col items-center justify-center flex-1">
-            <div className={`transition-all duration-1000 delay-100 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <h1 className="mx-auto min-h-[88px] max-w-[854px] px-5 space-y-6 text-center font-sans text-[48px] font-medium leading-11 tracking-[-0.96px] text-white transition-all duration-300 md:min-h-32 md:px-0 md:text-7xl md:leading-16">
-                {typedText}
-                <span className="ml-0.5 inline-block h-11 w-0.5 animate-blink align-middle bg-foreground-primary transition-opacity duration-100 md:ml-2.5 md:h-16"></span>
+            <div className={`transition-optimized transition-all duration-700 delay-100 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <h1 className="typing-text mx-auto min-h-[88px] max-w-[854px] px-5 space-y-6 text-center font-sans text-[48px] font-medium leading-11 tracking-[-0.96px] text-white md:min-h-32 md:px-0 md:text-7xl md:leading-16">
+                <span className="inline-block">{typedText}</span>
+                <span className="ml-0.5 inline-block h-11 w-0.5 animate-blink align-middle bg-foreground-primary md:ml-2.5 md:h-16"></span>
               </h1>
             </div>
-            <div className={`transition-all duration-1000 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className={`transition-optimized transition-all duration-700 delay-150 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <h2 className="mx-auto max-w-[410px] pt-3 text-center text-sm font-light leading-6 text-white/80">
                 Start with a simple prompt or dive into our pro editing
                 tools, your next track is just a step away.
               </h2>
             </div>
-            <section className={`mx-auto mt-6 w-full max-w-[800px] px-5 transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}>
+            <section className={`transition-optimized mx-auto mt-6 w-full max-w-[800px] px-5 transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}>
               <div className="relative flex w-full flex-col gap-2 rounded-[20px] border border-white/10 bg-black/30 backdrop-blur-[2px] transition-all duration-300 hover:border-white/20 hover:bg-black/40">
                 <div className="mx-5 mt-4 flex flex-1 items-end">
                   <textarea
@@ -318,7 +375,7 @@ export default function HeroSection() {
               </div>
             </section>
           </section>
-          <div className={`transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
+          <div className={`transition-optimized transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
             <div className="animate-float" style={{ animationDelay: '3s' }}>
               <SongCard
                 title="Lo-Fi Rocks"
@@ -333,7 +390,7 @@ export default function HeroSection() {
         </div>
       </main>
 
-      <div className={`relative w-full mt-auto pb-10 transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+      <div className={`transition-optimized relative w-full mt-auto pb-10 transition-all duration-700 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <LogoMarquee />
       </div>
     </div>
