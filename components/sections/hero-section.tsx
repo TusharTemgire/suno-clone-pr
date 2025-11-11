@@ -332,19 +332,19 @@ export default function HeroSection() {
             </div>
           </div>
           <section className="flex flex-col items-center justify-center flex-1">
-            <div className={`transition-optimized transition-all duration-700 delay-100 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <h1 className="typing-text mx-auto min-h-[88px] max-w-[854px] px-5 space-y-6 text-center font-sans text-[48px] font-medium leading-11 tracking-[-0.96px] text-white md:min-h-32 md:px-0 md:text-7xl md:leading-16">
-                <span className="inline-block">{typedText}</span>
-                <span className="ml-0.5 inline-block h-11 w-0.5 animate-blink align-middle bg-foreground-primary md:ml-2.5 md:h-16"></span>
+            <div className={`transition-all duration-1000 delay-100 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <h1 className="mx-auto min-h-[88px] max-w-[854px] px-5 space-y-6 text-center text-[58px] font-semibold leading-11 tracking-[-0.96px] text-white transition-all duration-300 md:min-h-32 md:px-0 md:text-7xl md:leading-16">
+                {typedText}
+                <span className="ml-0.5 inline-block h-11 w-0.5 animate-blink align-middle bg-foreground-primary transition-opacity duration-100 md:ml-2.5 md:h-16"></span>
               </h1>
             </div>
-            <div className={`transition-optimized transition-all duration-700 delay-150 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className={`transition-all duration-1000 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <h2 className="mx-auto max-w-[410px] pt-3 text-center text-sm font-light leading-6 text-white/80">
                 Start with a simple prompt or dive into our pro editing
                 tools, your next track is just a step away.
               </h2>
             </div>
-            <section className={`transition-optimized mx-auto mt-6 w-full max-w-[800px] px-5 transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}>
+            <section className={`mx-auto mt-6 w-full max-w-[800px] px-5 transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}>
               <div className="relative flex w-full flex-col gap-2 rounded-[20px] border border-white/10 bg-black/30 backdrop-blur-[2px] transition-all duration-300 hover:border-white/20 hover:bg-black/40">
                 <div className="mx-5 mt-4 flex flex-1 items-end">
                   <textarea
