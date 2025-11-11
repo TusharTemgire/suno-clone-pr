@@ -23,15 +23,35 @@ const SongCard = ({
   imageUrl,
   avatarUrl,
   className,
+  rotate = 0,
 }: {
   title: string;
   artist: string;
   imageUrl: string;
   avatarUrl: string;
   className?: string;
+  rotate?: number;
 }) => (
-  <div className={`cursor-pointer shadow-2xl ${className} group`}>
-    <div className="relative h-full w-full origin-top overflow-hidden rounded-[12px] transition-all duration-500 hover:scale-[105%] hover:shadow-2xl md:h-[311px]">
+  <div
+    className={`cursor-pointer blur-[1px] hover:blur-none ml-2 mr-2 shadow-2xl ${className} group`}
+    style={{ transform: `rotate(${rotate}deg)` }}
+    onMouseMove={e => {
+      const card = e.currentTarget as HTMLDivElement;
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * 6;
+      const rotateY = ((x - centerX) / centerX) * 6;
+      card.style.transform = `rotate(${rotate}deg) perspective(600px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+    }}
+    onMouseLeave={e => {
+      const card = e.currentTarget as HTMLDivElement;
+      card.style.transform = `rotate(${rotate}deg)`;
+    }}
+  >
+    <div className="relative h-full w-full origin-top overflow-hidden rounded-[12px] transition-all duration-500 hover:scale-[115%] hover:shadow-2xl md:h-[311px]">
       <Image src={imageUrl} alt={title} fill className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/50 to-transparent transition-opacity duration-300 group-hover:from-black/70" />
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out">
@@ -250,6 +270,7 @@ export default function HeroSection() {
                 imageUrl="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d379c487-54bc-4fa0-8716-872371df7d6e-suno-com/assets/images/image_b52e3b57-8a04-45d2-8950-6703d8f04742-2.jpeg"
                 avatarUrl="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d379c487-54bc-4fa0-8716-872371df7d6e-suno-com/assets/images/defaultBlue-3.webp"
                 className="hidden lg:block lg:w-52 mr-8"
+                rotate={-8}
               />
             </div>
           </div>
@@ -287,7 +308,7 @@ export default function HeroSection() {
                     <span className="hidden text-sm text-white/80 md:inline transition-colors duration-200">Advanced</span>
                   </button>
                   <div className="flex-1"></div>
-                  <button className="flex h-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#FF1744] to-[#FF6B35] px-3.5 py-1.5 text-sm font-medium text-white shadow-lg transition-all duration-300 ease-in-out hover:opacity-90 hover:scale-105 hover:shadow-xl active:scale-95 md:px-4 md:py-2">
+                  <button className="flex h-9 shrink-0 items-center justify-center rounded-full bg-linear-to-r from-[#FF1744] to-[#FF6B35] px-3.5 py-1.5 text-sm font-medium text-white shadow-lg transition-all duration-300 ease-in-out hover:opacity-90 hover:scale-105 hover:shadow-xl active:scale-95 md:px-4 md:py-2">
                     <div className="flex h-full w-full items-center justify-center">
                       <Music className="h-4 w-4 md:mr-1.5" />
                       <span className="hidden md:block">Create</span>
@@ -305,6 +326,7 @@ export default function HeroSection() {
                 imageUrl="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d379c487-54bc-4fa0-8716-872371df7d6e-suno-com/assets/images/image_ed482c5c-3c23-416c-8fa5-09dca6ed392e-4.jpeg"
                 avatarUrl="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d379c487-54bc-4fa0-8716-872371df7d6e-suno-com/assets/images/ee2ab324-5.webp"
                 className="hidden lg:block lg:w-52 ml-8"
+                rotate={8}
               />
             </div>
           </div>
