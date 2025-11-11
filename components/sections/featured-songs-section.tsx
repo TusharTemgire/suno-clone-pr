@@ -3,14 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
-const PremiumIcon = () => (
-  <div className="absolute top-[13px] left-[13px]">
-    <svg width="18" height="21" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
-      <path d="M9.01633 0.354004L0.266327 5.37801V15.426L9.01633 20.45L17.7663 15.426V5.37801L9.01633 0.354004ZM8.01633 9.45301H10.0163V11.453H12.0163V7.45301H8.01633V5.45301H14.0163V13.453H12.0163V15.453H6.01633V7.45301H8.01633V9.45301Z" fill="currentColor"/>
-    </svg>
-  </div>
-);
-
 const PlayIcon = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-3 w-3">
     <path d="M2 10.5V1.5L9.5 6L2 10.5Z" fill="currentColor"/>
@@ -74,13 +66,13 @@ const SongCard = ({ song, index }: { song: Song; index: number }) => {
     >
       <div className="relative h-[267px] w-full origin-top overflow-hidden rounded-[12px] transition-transform duration-300 hover:scale-[102%] md:h-[311px] group">
         <Image src={song.albumArt} alt={song.title} width={260} height={311} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        {song.isPremium && <PremiumIcon />}
+        {song.isPremium && <PlayIcon />}
         <div className="absolute bottom-[13px] left-[14.5px] flex flex-row gap-1">
-        <div aria-label="Play button with play count" className="inline-flex h-[30px] flex-row items-center gap-1 rounded-md border border-border-primary bg-white/25 px-2 py-1 font-sans text-[12.68px] font-medium uppercase leading-[15.216px] text-foreground backdrop-blur-[15.22px]">
+        <div aria-label="Play button with play count" className="inline-flex h-[30px] flex-row items-center gap-1 rounded-md border border-gray-500/50 bg-black/25 px-2 py-1 font-sans text-[12.68px] font-medium uppercase leading-[15.216px] text-white backdrop-blur-[15.22px]">
           <PlayIcon />
           <div>{song.playCount}</div>
         </div>
-        <button className="hidden h-[30px] flex-row items-center gap-1 rounded-md border border-border-primary bg-white/25 px-2 py-1 font-sans text-[12.68px] font-medium uppercase leading-[15.216px] text-foreground backdrop-blur-[15.22px] md:flex" aria-label="Like button with like count">
+        <button className="hidden h-[30px] flex-row items-center gap-1 rounded-md border border-gray-500/50 bg-black/25 px-2 py-1 font-sans text-[12.68px] font-medium uppercase leading-[15.216px] text-white backdrop-blur-[15.22px] md:flex" aria-label="Like button with like count">
           <HeartIcon />
           <div>{song.likeCount}</div>
         </button>
