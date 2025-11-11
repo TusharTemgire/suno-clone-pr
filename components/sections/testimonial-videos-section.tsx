@@ -1,5 +1,7 @@
-"use client";
-import type { FC } from 'react';
+'use client'; 
+
+import { useEffect, useRef } from "react";
+import type { FC } from "react";
 
 const PlayIcon: FC<{ className?: string }> = ({ className }) => (
   <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -35,6 +37,16 @@ const testimonials = [
 ];
 
 const TestimonialVideosSection = () => {
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
+  useEffect(() => {
+    videoRefs.current.forEach((video) => {
+      if (video) {
+        video.play();
+      }
+    });
+  }, []);
+
   return (
     <section id="community" className="bg-black pt-[100px] md:pt-[150px] overflow-hidden">
       <div className="px-5">
@@ -49,22 +61,27 @@ const TestimonialVideosSection = () => {
       </div>
       
       <div className="mt-[60px]">
-        {/* The 'scrollbar-hide' class is assumed to be defined in a global stylesheet to hide the scrollbar thumb */}
         <div className="scrollbar-hide overflow-x-auto">
           <div className="mx-auto flex max-w-[1790px] justify-center gap-[15px] px-[15px]">
             {testimonials.map((testimonial, index) => (
               <div key={index}>
-                <div className="group relative h-[475px] w-[267px] shrink-0 cursor-pointer overflow-hidden rounded-[12px] transition-transform duration-300 hover:scale-[102%]">
+                <div
+                  className="group relative h-[475px] w-[267px] shrink-0 cursor-pointer overflow-hidden rounded-[12px] transition-transform duration-300 hover:scale-[102%] animate-fade-in"
+                  style={{
+                    animationDelay: `${index * 0.15}s`,
+                    animationFillMode: "both",
+                  }}
+                >
                   <video
+                    ref={el => { videoRefs.current[index] = el; }}
                     className="h-full w-full object-cover"
                     src={testimonial.videoSrc}
                     loop
                     playsInline
-                    autoPlay
                     muted
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black/40 backdrop-blur-sm">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black/40 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
                       <PlayIcon className="text-white/70" />
                     </div>
                   </div>
@@ -91,12 +108,14 @@ const TestimonialVideosSection = () => {
       <div className="mt-20 flex justify-center pb-20">
         <a
           href="#"
-          className="relative rounded-full px-8 py-3 text-[18px] font-medium text-white transition-opacity hover:opacity-90 overflow-hidden"
+          className="relative rounded-full px-8 py-3 text-[18px] font-medium text-white transition-opacity hover:opacity-90 overflow-hidden animate-fade-in"
           style={{
             backgroundImage:
               "url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d379c487-54bc-4fa0-8716-872371df7d6e-suno-com/assets/images/Aura-1-Hero-Web-1.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
+            animationDelay: `${testimonials.length * 0.15 + 0.2}s`,
+            animationFillMode: "both",
           }}
         >
           <span className="relative z-10">Sign up for free</span>
@@ -109,6 +128,15 @@ const TestimonialVideosSection = () => {
           />
         </a>
       </div>
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(40px) scale(0.96);}
+          to { opacity: 1; transform: translateY(0) scale(1);}
+        }
+        .animate-fade-in {
+          animation: fade-in 0.8s cubic-bezier(.4,0,.2,1) both;
+        }
+      `}</style>
     </section>
   );
 };

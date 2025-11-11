@@ -30,24 +30,24 @@ const SongCard = ({
   avatarUrl: string;
   className?: string;
 }) => (
-  <div className={`cursor-pointer shadow-2xl ${className}`}>
-    <div className="relative h-full w-full origin-top overflow-hidden rounded-[12px] transition-transform duration-300 hover:scale-[102%] md:h-[311px]">
-      <Image src={imageUrl} alt={title} fill className="h-full w-full object-cover" />
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-sm">
-          <PlayIcon className="text-white/70 ml-1" />
+  <div className={`cursor-pointer shadow-2xl ${className} group`}>
+    <div className="relative h-full w-full origin-top overflow-hidden rounded-[12px] transition-all duration-500 hover:scale-[105%] hover:shadow-2xl md:h-[311px]">
+      <Image src={imageUrl} alt={title} fill className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/50 to-transparent transition-opacity duration-300 group-hover:from-black/70" />
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-black/60">
+          <PlayIcon className="text-white/70 ml-1 transition-colors duration-300 group-hover:text-white" />
         </div>
       </div>
-      <div className="absolute right-3.5 bottom-3.5 left-3.5 z-10 text-shadow">
-        <div className="mb-1 text-sm font-medium text-white" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>
+      <div className="absolute right-3.5 bottom-3.5 left-3.5 z-10 text-shadow transition-all duration-300 group-hover:bottom-4">
+        <div className="mb-1 text-sm font-medium text-white transition-all duration-300 group-hover:text-[15px]" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>
           {title}
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-5 w-5">
+          <div className="h-5 w-5 transition-transform duration-300 group-hover:scale-110">
             <Image src={avatarUrl} alt={artist} width={20} height={20} className="rounded-full" />
           </div>
-          <div className="text-[11px] font-medium text-white/80" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>
+          <div className="text-[11px] font-medium text-white/80 transition-colors duration-300 group-hover:text-white/90" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>
             {artist}
           </div>
         </div>
@@ -90,18 +90,21 @@ const LogoMarquee = () => {
           .animate-marquee {
             animation: marquee 60s linear infinite;
           }
+          .animate-marquee:hover {
+            animation-play-state: paused;
+          }
         `}
       </style>
       <div className="flex animate-marquee whitespace-nowrap">
         {allLogos.map((logo, index) => (
           <div key={index} className="inline-block px-3 md:px-6">
-            <div className="flex h-12 w-24 items-center justify-center grayscale transition-all duration-300 hover:grayscale-0 md:h-16 md:w-32">
+            <div className="flex h-12 w-24 items-center justify-center grayscale transition-all duration-500 hover:grayscale-0 hover:scale-110 md:h-16 md:w-32">
               <Image
                 src={logo.src}
                 alt={logo.name}
                 width={128}
                 height={40}
-                className="h-auto max-h-8 w-auto max-w-full object-contain md:max-h-10"
+                className="h-auto max-h-8 w-auto max-w-full object-contain md:max-h-10 transition-all duration-500"
               />
             </div>
           </div>
@@ -308,7 +311,7 @@ export default function HeroSection() {
         </div>
       </main>
 
-      <div className="relative w-full mt-auto pb-10">
+      <div className={`relative w-full mt-auto pb-10 transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <LogoMarquee />
       </div>
     </div>
